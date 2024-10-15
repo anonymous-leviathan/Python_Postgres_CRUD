@@ -28,10 +28,11 @@ db_dependency = Annotated[Session, Depends(get_db)]
 
 @app.post("/questions")
 async def create_questions(question: QuestionBase, db: db_dependency):
-    db_questions = models.Questions(questions_text=question.question_text)
-    db.add(db_questions)
+    db_question = models.Questions(question_text=question.question_text)
+    db.add(db_question)
     db.commit()
-    db.refresh(db_questions)
+    db.refresh(db_question)
     for choice in question.choices:
-        db_choice = models.Choices(choice_text=choice.choise_text, is_correct=choice.is_correct)
-    
+        db_choice = models.Choices(choice_text=choice.choise_text, is_correct=choice.is_correct, question_id=db_question.id)
+        db.add(db_choice)
+    db.commit()
